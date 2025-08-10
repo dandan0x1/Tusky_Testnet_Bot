@@ -1,0 +1,46 @@
+import json
+
+# Read private keys and proxy URLs from the text files
+with open('config/privateKey.txt', 'r') as pk_file:
+    private_keys = [line.strip() for line in pk_file if line.strip()]
+
+with open('config/proxyUrl.txt', 'r') as proxy_file:
+    proxy_urls = [line.strip() for line in proxy_file if line.strip()]
+
+# Ensure both files have the same number of entries
+if len(private_keys) != len(proxy_urls):
+    raise ValueError("The number of private keys and proxy URLs must be equal.")
+
+# Create the accounts list
+accounts = [
+    {
+        "privateKey": pk,
+        "mnemonic": None,
+        "name": f"Account {i + 1}" if i > 0 else "Main Account",
+        "proxyUrl": proxy,
+        "enabled": True
+    }
+    for i, (pk, proxy) in enumerate(zip(private_keys, proxy_urls))
+]
+
+# Define the settings
+settings = {
+    "uploadsPerDay": 1,
+    "dailyCycles": 10,
+    "randomizeSchedule": True,
+    "waitBetweenUploads": 2000,
+    "waitBetweenAccounts": 5000,
+    "defaultProxyUrl": "http://127.0.0.1:7890"
+}
+
+# Create the final JSON structure
+output = {
+    "accounts": accounts,
+    "settings": settings
+}
+
+# Write the JSON to a file
+with open('config/config_new.json', 'w') as json_file:
+    json.dump(output, json_file, indent=2)
+
+print("JSON file generated successfully as 'config/config_new.json'.")
